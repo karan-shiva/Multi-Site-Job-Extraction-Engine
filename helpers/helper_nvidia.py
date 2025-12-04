@@ -4,24 +4,24 @@ from selenium.webdriver.common.by import By
 from defs import *
 from helpers import Base
 
-class Template(Base):
+class Nvidia(Base):
 
-  company = "template"
+  company = "nvidia"
 
   def get_jobs(self, url):
       self.driver.get(url)
       WebDriverWait(self.driver, 5).until(
-          EC.presence_of_element_located((By.CSS_SELECTOR, "h3.QJPWVe"))
+          EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test-id='job-listing']"))
       )
       
-      return self.driver.find_elements(By.CSS_SELECTOR, "div[jscontroller='snXUJb']")
+      return self.driver.find_elements(By.CSS_SELECTOR, "[data-test-id='job-listing']")[:10]
 
   def get_li_elements(self, link, qual_type):
     if qual_type == MIN_QUAL:
-      quals = ["What you need to bring:".lower(),
+      quals = ["what we need to see",
               ]
     else:
-      quals = ["Preferred Qualifications:".lower(),
+      quals = ["ways to stand out from the crowd",
               ]
     conditions = " or ".join([
         f"contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{p}')" 
@@ -39,16 +39,14 @@ class Template(Base):
 
     els = self.child_driver.find_elements(By.XPATH,header_xpath)
     qual_header = min(els, key=lambda e: len(e.get_attribute("outerHTML")))
-    ul = qual_header.find_elements(By.XPATH, "./following::ul")
-    if not ul:
-      return []
-    return ul[0].find_elements(By.TAG_NAME, "li")
+    ul = qual_header.find_element(By.XPATH, "./following::ul")
+    return ul.find_elements(By.TAG_NAME, "li")
 
   
   @staticmethod
   def get_title_and_link(job):
-    title = job.find_element(By.CSS_SELECTOR, "h3.QJPWVe").text.strip()
-    link = job.find_element(By.CSS_SELECTOR, "a.WpHeLc").get_attribute("href")
+    title = job.find_element(By.CSS_SELECTOR, "a").text.strip().split("\n")[0]
+    link = job.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
     return (title, link)
 
   @staticmethod
@@ -80,4 +78,12 @@ class Template(Base):
 
   @staticmethod
   def get_base_url():
-    return ["https://www.google.com/about/careers/applications/jobs/results/?q=%22{}%22&target_level=EARLY&target_level=MID&location=United%20States&sort_by=date&page={}"]
+    return ["https://nvidia.eightfold.ai/careers?query={}&start={}&location=United+States+of+America&pid=893375056847&sort_by=timestamp&filter_include_remote=1"]
+  
+  @staticmethod
+  def get_page_increement():
+    return 10
+  
+  @staticmethod
+  def get_start_pageID():
+    return 0

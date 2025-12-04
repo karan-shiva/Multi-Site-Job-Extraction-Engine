@@ -11,24 +11,24 @@ class Amazon(Base):
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "a.job-link"))
-        )
-      except:
-        return []
-      
+
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "a.job-link"))
+      )
+
       return self.driver.find_elements(By.CSS_SELECTOR, "a.job-link")
 
   def get_qualifications(self, link, qual_type):
     qual = "BASIC QUALIFICATIONS" if qual_type == MIN_QUAL else "PREFERRED QUALIFICATIONS"
+    qual = qual.lower()
     
     self.child_driver.get(link)
+    # print(link)
     WebDriverWait(self.child_driver, 5).until(
-      EC.presence_of_element_located((By.XPATH,".//h2[contains(text(), '{}')]".format(qual)))
+      EC.presence_of_element_located((By.XPATH,".//h2[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{}')]".format(qual)))
     )
 
-    qual_header = self.child_driver.find_element(By.XPATH,".//h2[contains(text(), '{}')]".format(qual))
+    qual_header = self.child_driver.find_element(By.XPATH,".//h2[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{}')]".format(qual))
     p = qual_header.find_element(By.XPATH, "./following-sibling::p")
     p = p.text.replace("Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.","").\
             replace("Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit","").\
@@ -40,32 +40,44 @@ class Amazon(Base):
     return [p[:p.find("Our compensation reflects the cost")].strip()]
   
   def get_date(self, job_index):
-    date = self.driver.find_elements(By.CSS_SELECTOR, "h2.posting-date")[job_index]
+    date = self.driver.find_elements(By.CSS_SELECTOR, "span.posting-date")[job_index]
     update = date.find_element(By.XPATH, "./following-sibling::p").text.strip()
     return (date.text.strip(), update)
   
+  def check_update(self, update: str):
+    time = update.split(" ")[-3:-1]
+    try:
+      res =  time[1].find("hour") != -1 or (time[1].find("day") != -1 and int(time[0]) < 2)
+    except:
+      print("ERROR: Update = {}".format(update))
+      exit(-1)
+    if res:
+      pass
+    return res
+    
+  
   def add_link(self, link, link_set, job_index):
-    date, update = self.get_date(job_index)
-    link_set.add((link, date, update))
+    date, _ = self.get_date(job_index)
+    link_set.add((link, date))
   
   def check_link(self, link, link_set, job_index):
-    date, update = self.get_date(job_index)
-    return (link, date, update) not in link_set
+    # date, update = self.get_date(job_index)
+    return (link not in link_set)
   
   def get_link(self):
     try: 
       with open("{}/{}-link.txt".format(self.company, self.company), "r") as f:
         lines = f.read().split("\n")
-        a = [tuple(line.split("KARAN")) for line in lines]
+        a = [line.split("KARAN")[0] for line in lines]
         return a
     except:
       return []
     
   def print_link(self, link, job_index):
-    date, update = self.get_date(job_index)
-    return super().print_link_data("KARAN".join([link, date, update]))
+    date, _ = self.get_date(job_index)
+    return super().print_link_data("KARAN".join([link, date]))
 
-  def print_and_check_date(self, job_index):
+  def print_date(self, job_index):
     date, update = self.get_date(job_index)
     self.print("\n".join([date, update,""]))
     # dt = " ".join(date.text.strip().split(" ")[1:])
@@ -96,10 +108,16 @@ class Amazon(Base):
                       "PhD",
                       "Front End",
                       "Analyst",
-                      "Co-op"
+                      "Co-op",
+                      "Business Intelligence Engineer",
+                      "Flow Lead, Central Flow",
+                      "Data Center Technician",
+                      "Customs Brokerage Specialist",
+                      "Interim Ship Clerk"
                       ]
     
     exclude_descriptions = ["Coding experience in either iOS or Android",
+                            "Must be enrolled in a full-time degree program at time of application and returning to school after the internship"
                             ]
     for i in range(5,11):
       exclude_descriptions.append("{} years".format(i))
@@ -112,9 +130,7 @@ class Amazon(Base):
   def get_base_url():
     return [
             "https://www.amazon.jobs/en/search?base_query=%22{}%22&offset={}&result_limit=10&sort=recent&distanceType=Mi&radius=80km&industry_experience=less_than_1_year&latitude=38.89036&longitude=-77.03196&loc_group_id=&loc_query=United%20States&city=&country=USA&region=&county=&query_options=&",
-            "https://www.amazon.jobs/en/search?base_query=%22{}%22&offset={}&result_limit=10&sort=relevant&distanceType=Mi&radius=80km&industry_experience=less_than_1_year&latitude=38.89036&longitude=-77.03196&loc_group_id=&loc_query=United%20States&city=&country=USA&region=&county=&query_options=&",
-            "https://www.amazon.jobs/content/en/career-programs/university?country%5B%5D=US&category%5B%5D=Software+Development"
-
+            "https://www.amazon.jobs/en/search?base_query=%22{}%22&offset={}&result_limit=10&sort=recent&distanceType=Mi&radius=80km&industry_experience=one_to_three_years&latitude=38.89036&longitude=-77.03196&loc_group_id=&loc_query=United%20States&city=&country=USA&region=&county=&query_options=&"
             ]
   
   @staticmethod
@@ -127,4 +143,4 @@ class Amazon(Base):
   
   @staticmethod
   def get_max_pages():
-    return 40
+    return 20

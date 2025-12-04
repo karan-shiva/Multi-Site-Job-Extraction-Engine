@@ -1,4 +1,5 @@
 from defs import *
+from selenium.webdriver.chrome.options import Options
 
 class Base:
 
@@ -48,7 +49,7 @@ class Base:
   def check_date(self, job_index):
     return True
 
-  def print_and_check_date(self, job_index):
+  def print_date(self, job_index):
     return True
 
   def reset_files(self):
@@ -90,3 +91,18 @@ class Base:
   def get_url(base_url, filter, page):
     return base_url.format(filter, page)
   
+  @staticmethod
+  def get_child_options():
+    options = Options()
+    options.add_argument("--headless=new")  # Use "--headless=new" for Chrome 109+
+    options.add_argument("--disable-gpu")   # Optional: improves compatibility
+    options.add_argument("--window-size=1920,1080")  # Optional: needed for some rendering
+    return options
+  
+  @staticmethod
+  def get_parent_options():
+    options = Options()
+    options.add_argument("--headless=new")  # Use "--headless=new" for Chrome 109+
+    options.add_argument("--disable-gpu")   # Optional: improves compatibility
+    options.add_argument("--window-size=1920,1080")  # Optional: needed for some rendering
+    return options

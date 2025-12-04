@@ -12,31 +12,28 @@ class Microsoft(Base):
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "h2.MZGzlrn8gfgSs8TZHhv2"))
-        )
-      except:
-        return []
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "h2.MZGzlrn8gfgSs8TZHhv2"))
+      )
       
       return self.driver.find_elements(By.CSS_SELECTOR, "h2.MZGzlrn8gfgSs8TZHhv2")
 
   def get_li_elements(self, link, qual_type):
     self.child_driver.get(link)
     WebDriverWait(self.child_driver, 5).until(
-      EC.presence_of_element_located((By.XPATH,".//span[.//text()[contains(., 'Required') or contains(., 'Minimum')]] | .//strong[.//text()[contains(., 'Required') or contains(., 'Minimum')]]"))
+      EC.presence_of_element_located((By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'required') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'minimum')] | .//strong[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'required') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'minimum')]"))
     )
 
     if qual_type == MIN_QUAL:
-      qual_header = self.child_driver.find_element(By.XPATH,".//span[.//text()[contains(., 'Required') or contains(., 'Minimum')]] | .//strong[.//text()[contains(., 'Required') or contains(., 'Minimum')]]")
+      qual_header = self.child_driver.find_element(By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'required') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'minimum')] | .//strong[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'required') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'minimum')]")
     else:
-      qual_header = self.child_driver.find_element(By.XPATH,".//span[.//text()[contains(., 'Preferred')]] | .//strong[.//text()[contains(., 'Preferred')]]")
+      qual_header = self.child_driver.find_element(By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'preferred')] | .//strong[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'preferred')]")
 
     ul = qual_header.find_element(By.XPATH, "following::ul")
     return ul.find_elements(By.TAG_NAME, "li")
 
 
-  def print_and_check_date(self, job_index):
+  def print_date(self, job_index):
     try:
       date_posted = self.child_driver.find_element(By.XPATH, ".//div[contains(text(), 'Date posted')]")
       date = date_posted.find_element(By.XPATH, "./following-sibling::div").text.strip()
@@ -93,10 +90,19 @@ class Microsoft(Base):
                       "Sr Software",
                       "Sr. Software",
                       "Data Analyst",
-                      " CTJ "
+                      " CTJ ",
+                      "Electrical Engineer",
+                      "Security Engineer",
+                      "Quality Engineer",
+                      "Network Security Service Engineer",
+                      "Cloud Solution Architect",
+                      "Researcher Intern",
+                      "Partner Technical Advisor",
+                      "Service Engineer",
+                      "Research Intern"
                       ]
     
-    exclude_descriptions = []
+    exclude_descriptions = ["2+ years of experience in mobile app development"]
     for i in range(5,11):
       exclude_descriptions.append("{} years".format(i))
       exclude_descriptions.append("{}+ years".format(i))

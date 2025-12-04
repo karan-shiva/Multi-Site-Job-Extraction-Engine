@@ -4,30 +4,30 @@ from selenium.webdriver.common.by import By
 from defs import *
 from helpers import Base
 
-class Template(Base):
+class IBM(Base):
 
-  company = "template"
+  company = "IBM"
 
   def get_jobs(self, url):
       self.driver.get(url)
       WebDriverWait(self.driver, 5).until(
-          EC.presence_of_element_located((By.CSS_SELECTOR, "h3.QJPWVe"))
+          EC.presence_of_element_located((By.CSS_SELECTOR, "div.bx--card-group__cards__col"))
       )
       
-      return self.driver.find_elements(By.CSS_SELECTOR, "div[jscontroller='snXUJb']")
+      return self.driver.find_elements(By.CSS_SELECTOR, "div.bx--card-group__cards__col")
 
   def get_li_elements(self, link, qual_type):
     if qual_type == MIN_QUAL:
-      quals = ["What you need to bring:".lower(),
+      quals = ["Required technical and professional expertise".lower(),
               ]
     else:
-      quals = ["Preferred Qualifications:".lower(),
+      quals = ["Preferred technical and professional experience".lower(),
               ]
     conditions = " or ".join([
         f"contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{p}')" 
         for p in quals
     ])
-    header_xpath = f".//*[self::h2 or self::h3 or self::b or self::div or self::p][{conditions}]"
+    header_xpath = f".//*[self::h2 or self::h3 or self::div or self::p][{conditions}]"
     
     self.child_driver.get(link)
     try:
@@ -39,16 +39,31 @@ class Template(Base):
 
     els = self.child_driver.find_elements(By.XPATH,header_xpath)
     qual_header = min(els, key=lambda e: len(e.get_attribute("outerHTML")))
-    ul = qual_header.find_elements(By.XPATH, "./following::ul")
-    if not ul:
-      return []
-    return ul[0].find_elements(By.TAG_NAME, "li")
+    ul = qual_header.find_element(By.XPATH, "./following::ul")
+    return ul.find_elements(By.TAG_NAME, "li")
+  
+  def get_date(self, job_index):
+    date_posted = self.child_driver.find_element(By.XPATH, ".//div[contains(text(), 'Date posted')]")
+    return date_posted.find_element(By.XPATH, "./following-sibling::div").text.strip()
+  
+  def check_date(self, job_index):
+    date = self.get_date(job_index)
+    from datetime import datetime
+    given_date = datetime.strptime(date,"%d-%b-%Y")
+    today = datetime.today()
+    if (today - given_date).days > 14:
+      return False
+    return True
 
+  def print_date(self, job_index):
+    date = self.get_date(job_index)
+    print(date)
+    self.print(date)
   
   @staticmethod
   def get_title_and_link(job):
-    title = job.find_element(By.CSS_SELECTOR, "h3.QJPWVe").text.strip()
-    link = job.find_element(By.CSS_SELECTOR, "a.WpHeLc").get_attribute("href")
+    title = job.find_element(By.CSS_SELECTOR, "div.bx--card__heading").text.strip()
+    link = job.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
     return (title, link)
 
   @staticmethod
@@ -64,7 +79,9 @@ class Template(Base):
                       "iOS",
                       "Manager",
                       "PhD",
-                      "Front End"
+                      "Front End",
+                      "Technical Sales Engineer",
+                      
                       ]
     
     exclude_descriptions = []
@@ -80,4 +97,4 @@ class Template(Base):
 
   @staticmethod
   def get_base_url():
-    return ["https://www.google.com/about/careers/applications/jobs/results/?q=%22{}%22&target_level=EARLY&target_level=MID&location=United%20States&sort_by=date&page={}"]
+    return ["https://www.ibm.com/careers/search?field_keyword_05[0]=United%20States&q={}&sort=dcdate_desc&p={}"]

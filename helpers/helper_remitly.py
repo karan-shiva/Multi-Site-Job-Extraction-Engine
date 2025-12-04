@@ -11,35 +11,34 @@ class Remitly(Base):
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.jobTitle"))
-        )
-      except:
-        return []
+    
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "div.jobTitle"))
+      )
+
       
       return self.driver.find_elements(By.CSS_SELECTOR, "div.jobTitle")
 
   def get_li_elements(self, link, qual_type):
     self.child_driver.get(link)
     WebDriverWait(self.child_driver, 5).until(
-      EC.presence_of_element_located((By.XPATH,".//b[contains(text(),'You Will:')]"))
+      EC.presence_of_element_located((By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'you will:')]"))
     )
     if qual_type == MIN_QUAL:
-      qual_header = self.child_driver.find_element(By.XPATH,".//b[contains(text(),'You Will:')]")
+      qual_header = self.child_driver.find_element(By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'you will:')]")
     else:
-      qual_header = self.child_driver.find_element(By.XPATH,".//b[contains(text(),'You Have:')]")
+      qual_header = self.child_driver.find_element(By.XPATH,".//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'you have:')]")
     ul = qual_header.find_element(By.XPATH, "following::ul")
     return ul.find_elements(By.TAG_NAME, "li")
   
   def check_date(self, job_index):
     dt = self.driver.find_element(By.CSS_SELECTOR, "div.joblist-posdate").text.strip()
     given_date = datetime.strptime(dt, "%m/%d/%Y")
-    if (datetime.today() - given_date).days > 5:
+    if (datetime.today() - given_date).days > 500:
       return False
     return True
   
-  def print_and_check_date(self, job_index):
+  def print_date(self, job_index):
     dt = self.driver.find_element(By.CSS_SELECTOR, "div.joblist-posdate").text.strip()
     self.print("{}\n".format(dt))
     given_date = datetime.strptime(dt, "%m/%d/%Y")

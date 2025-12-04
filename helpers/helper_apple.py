@@ -11,12 +11,9 @@ class Apple(Base):
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "a.link-inline"))
-        )
-      except:
-        return []
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "a.link-inline"))
+      )
       
       return self.driver.find_elements(By.CSS_SELECTOR, "a.link-inline")
   
@@ -41,7 +38,7 @@ class Apple(Base):
       return False
     return True
   
-  def print_and_check_date(self, job_index):
+  def print_date(self, job_index):
     date = self.child_driver.find_element(By.CSS_SELECTOR,"time")
     self.print(date.text.strip())
     dt = date.get_attribute("datetime")

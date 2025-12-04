@@ -10,12 +10,9 @@ class Oracle(Base):
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.job-tile"))
-        )
-      except:
-        return []
+      WebDriverWait(self.driver, 30).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "div.job-tile"))
+      )
       
       return self.driver.find_elements(By.CSS_SELECTOR, "div.job-tile")
 

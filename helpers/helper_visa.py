@@ -3,22 +3,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from defs import *
 from helpers import Base
+from datetime import datetime
 
-class Template(Base):
+MAX_DAYS = 14
 
-  company = "template"
+class Visa(Base):
+
+  company = "visa"
 
   def get_jobs(self, url):
       self.driver.get(url)
-      WebDriverWait(self.driver, 5).until(
-          EC.presence_of_element_located((By.CSS_SELECTOR, "h3.QJPWVe"))
-      )
       
-      return self.driver.find_elements(By.CSS_SELECTOR, "div[jscontroller='snXUJb']")
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "li.vs-underline"))
+      )
+
+      return self.driver.find_elements(By.CSS_SELECTOR, "li.vs-underline")
 
   def get_li_elements(self, link, qual_type):
     if qual_type == MIN_QUAL:
-      quals = ["What you need to bring:".lower(),
+      quals = ["Basic Qualifications".lower(),
               ]
     else:
       quals = ["Preferred Qualifications:".lower(),
@@ -43,12 +47,26 @@ class Template(Base):
     if not ul:
       return []
     return ul[0].find_elements(By.TAG_NAME, "li")
+  
+  def get_date(self):
+    date = self.child_driver.find_element(By.XPATH, ".//p[strong[contains(text(), 'Date :')]]").text.strip().replace("Date :", "").strip()
+    return date
+  
+  def print_date(self, job_index):
+    date_str = self.get_date()
+    self.print("📅 Date Posted: {}".format(date_str))
+
+  def check_date(self, job_index):
+    date_str = self.get_date()
+    date = datetime.strptime(date_str, "%b %d, %Y").date()
+    diff = (datetime.today().date() - date).days
+    return diff <= MAX_DAYS
 
   
   @staticmethod
   def get_title_and_link(job):
-    title = job.find_element(By.CSS_SELECTOR, "h3.QJPWVe").text.strip()
-    link = job.find_element(By.CSS_SELECTOR, "a.WpHeLc").get_attribute("href")
+    title = job.find_element(By.CSS_SELECTOR, "a").text.strip()
+    link = job.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
     return (title, link)
 
   @staticmethod
@@ -80,4 +98,7 @@ class Template(Base):
 
   @staticmethod
   def get_base_url():
-    return ["https://www.google.com/about/careers/applications/jobs/results/?q=%22{}%22&target_level=EARLY&target_level=MID&location=United%20States&sort_by=date&page={}"]
+    return ["https://corporate.visa.com/en/jobs/?q={}&cities=Ashburn&cities=Atlanta&cities=Austin&cities=Bellevue&cities=Foster%20City&cities=Highlands%20Ranch&cities=Lehi&cities=Miami&cities=New%20York&cities=San%20Francisco&cities=Union%20City&cities=Washington&sortProperty=createdOn&sortOrder=DESC"]
+  
+  def get_url(self, base_url, filter, page):
+    return base_url.format(filter)

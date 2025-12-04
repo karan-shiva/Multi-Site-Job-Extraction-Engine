@@ -6,3 +6,14 @@ from .helper_remitly import Remitly
 from .helper_microsoft import Microsoft
 from .helper_amazon import Amazon
 from .helper_oracle import Oracle
+from .helper_palo_alto import PaloAlto
+from .helper_paypal import Paypal
+from .helper_walmart import Walmart
+from .helper_adobe import Adobe
+from .helper_broadcom import Broadcom
+from .helper_ibm import IBM
+from .helper_intel import Intel
+from .helper_nvidia import Nvidia
+from .helper_redhat import RedHat
+from .helper_suse import Suse
+from .helper_visa import Visa

@@ -4,18 +4,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from defs import *
 from helpers.helper import Base
+from types import SimpleNamespace
 
 class Meta(Base):
   company = "meta"
 
   def get_jobs(self, url):
       self.driver.get(url)
-      try:
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "a.x1ypdohk[target='_blank']"))
-        )
-      except:
-        return []
+      WebDriverWait(self.driver, 5).until(
+          EC.presence_of_element_located((By.CSS_SELECTOR, "a.x1ypdohk[target='_blank']"))
+      )
       
       return self.driver.find_elements(By.CSS_SELECTOR, "a.x1ypdohk[target='_blank']")
 
@@ -23,17 +21,24 @@ class Meta(Base):
     qual = "Minimum Qualifications" if qual_type == MIN_QUAL else "Preferred Qualifications"
 
     self.child_driver.get(link)
-    WebDriverWait(self.child_driver, 5).until(
-          EC.presence_of_element_located((By.XPATH,".//div[contains(text(), '{}')]".format(qual)))
-      )
+    try:
+      WebDriverWait(self.child_driver, 5).until(
+            EC.presence_of_element_located((By.XPATH,".//div[contains(text(), '{}')]".format(qual)))
+        )
 
-    qual_header = self.child_driver.find_element(By.XPATH,".//div[contains(text(), '{}')]".format(qual))
-    ul = qual_header.find_element(By.XPATH, "following::ul")
-    return ul.find_elements(By.TAG_NAME, "li")
+      qual_header = self.child_driver.find_element(By.XPATH,".//div[contains(text(), '{}')]".format(qual))
+      ul = qual_header.find_element(By.XPATH, "following::ul")
+      return ul.find_elements(By.TAG_NAME, "li")
+    except Exception as e:
+      if qual_type == PREF_QUAL:
+        return [SimpleNamespace(text="No Preferred Qualifications")]
+      else:
+        raise
+
   
   @staticmethod
   def get_title_and_link(job):
-    title = job.find_element(By.CSS_SELECTOR, "div._6g3g").text.strip()
+    title = job.text.strip().split("\n")[0].strip()
     link = job.get_attribute("href")
     return (title, link)
 
@@ -52,10 +57,19 @@ class Meta(Base):
                       "PhD",
                       "Front End",
                       "Electrical Engineer",
-                      "Research Engineer"
+                      "Research Engineer",
+                      "Research Scientist",
+                      "QA Engineering Lead",
+                      "Metrology Engineer",
+                      "Image Sensor Validation Engineer",
+                      "ASIC Engineer",
+                      "Optical Engineer"
                       ]
     
-    exclude_descriptions = ["Building large-scale infrastructure applications"]
+    exclude_descriptions = ["Building large-scale infrastructure applications",
+                            "Currently enrolled in a full-time, degree-seeking program and in the process of obtaining a Bachelors or Masters degree in",
+                            "US Citizenship and the ability to obtain and maintain a United States Security Clearance"
+                          ]
     for i in range(5,11):
       exclude_descriptions.append("{} years".format(i))
       exclude_descriptions.append("{}+ years".format(i))
