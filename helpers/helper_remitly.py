@@ -40,7 +40,7 @@ class Remitly(Base):
   
   def print_date(self, job_index):
     dt = self.driver.find_element(By.CSS_SELECTOR, "div.joblist-posdate").text.strip()
-    self.print("{}\n".format(dt))
+    self.print("📅 Date Posted: {}".format(dt))
     given_date = datetime.strptime(dt, "%m/%d/%Y")
     if (datetime.today() - given_date).days > 5:
       return False

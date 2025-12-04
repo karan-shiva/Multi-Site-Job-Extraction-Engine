@@ -39,8 +39,8 @@ class Apple(Base):
     return True
   
   def print_date(self, job_index):
-    date = self.child_driver.find_element(By.CSS_SELECTOR,"time")
-    self.print(date.text.strip())
+    date = self.child_driver.find_element(By.CSS_SELECTOR,"time").text.strip()
+    self.print("📅 Date Posted: {}".format(date))
     dt = date.get_attribute("datetime")
     given_date = datetime.strptime(dt,"%Y-%m-%d")
     today = datetime.today()

@@ -68,7 +68,7 @@ class Broadcom(Base):
   
   def print_date(self, job_index):
     date = self.get_date(job_index)
-    self.print(date)
+    self.print("📅 Date Posted: {}".format(date))
     return True
       
 

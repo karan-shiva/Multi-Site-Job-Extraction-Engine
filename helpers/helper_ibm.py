@@ -43,8 +43,11 @@ class IBM(Base):
     return ul.find_elements(By.TAG_NAME, "li")
   
   def get_date(self, job_index):
-    date_posted = self.child_driver.find_element(By.XPATH, ".//div[contains(text(), 'Date posted')]")
-    return date_posted.find_element(By.XPATH, "./following-sibling::div").text.strip()
+    try:
+      date_posted = self.child_driver.find_element(By.XPATH, ".//div[contains(text(), 'Date posted')]")
+      return date_posted.find_element(By.XPATH, "./following-sibling::div").text.strip()
+    except:
+      return "No Date"
   
   def check_date(self, job_index):
     date = self.get_date(job_index)
@@ -57,8 +60,7 @@ class IBM(Base):
 
   def print_date(self, job_index):
     date = self.get_date(job_index)
-    print(date)
-    self.print(date)
+    self.print("📅 Date Posted: {}".format(date))
   
   @staticmethod
   def get_title_and_link(job):

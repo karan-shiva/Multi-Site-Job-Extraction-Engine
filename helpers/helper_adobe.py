@@ -177,7 +177,7 @@ class Adobe(Base):
 
   def print_date(self, job_index):
     dt = self.job_list[job_index]["date"]
-    self.print("{}\n".format(dt))
+    self.print("📅 Date Posted: {}".format(dt))
 
   @staticmethod
   def get_base_url():

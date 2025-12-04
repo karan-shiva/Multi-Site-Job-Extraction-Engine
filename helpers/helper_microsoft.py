@@ -37,7 +37,7 @@ class Microsoft(Base):
     try:
       date_posted = self.child_driver.find_element(By.XPATH, ".//div[contains(text(), 'Date posted')]")
       date = date_posted.find_element(By.XPATH, "./following-sibling::div").text.strip()
-      self.print(date)
+      self.print("📅 Date Posted: {}".format(date))
       given_date = datetime.strptime(date,"%b %d, %Y")
       today = datetime.today()
       if (today - given_date).days > 5:

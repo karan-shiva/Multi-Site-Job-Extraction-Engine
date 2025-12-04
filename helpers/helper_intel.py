@@ -111,7 +111,6 @@ class Intel(Base):
 
   def print_date(self, job_index):
     date = self.get_date(job_index)
-    print(date)
     self.print("📅 Date Posted: {}".format(date))
     
   def check_date(self, job_index):

@@ -34,8 +34,8 @@ class Walmart(Base):
     return False
   
   def print_date(self, job_index):
-    date_str = self.driver.find_elements(By.CSS_SELECTOR,"span.job-listing__created")[job_index]
-    self.print(date_str.text.strip())
+    date_str = self.driver.find_elements(By.CSS_SELECTOR,"span.job-listing__created")[job_index].text.strip()
+    self.print("📅 Date Posted: {}".format(date_str))
     return self.check_date(job_index)
     
 

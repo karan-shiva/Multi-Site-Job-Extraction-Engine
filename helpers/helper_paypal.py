@@ -57,7 +57,6 @@ class Paypal(Base):
   def print_date(self, job_index):
     date = self.get_date(job_index)
     self.print("📅 Date Posted: {}".format(date))
-    print(date)
     return True
 
   def check_date(self, job_index):
