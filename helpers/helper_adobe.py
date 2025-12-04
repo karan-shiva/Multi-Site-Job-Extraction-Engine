@@ -120,17 +120,13 @@ class Adobe(Base):
     try:
       WebDriverWait(self.child_driver, 5).until(
         EC.presence_of_element_located((By.XPATH,header_xpath))
-      )
+      ) 
+      els = self.child_driver.find_elements(By.XPATH,header_xpath)
+      qual_header = min(els, key=lambda e: len(e.get_attribute("outerHTML")))
+      ul = qual_header.find_element(By.XPATH, "./following::ul")
+      return ul.find_elements(By.TAG_NAME, "li")
     except Exception as e:
-      if qual_type == PREF_QUAL:
-        return [SimpleNamespace(text="No Preferred Qualifications")]
-      else:
-        raise
-
-    els = self.child_driver.find_elements(By.XPATH,header_xpath)
-    qual_header = min(els, key=lambda e: len(e.get_attribute("outerHTML")))
-    ul = qual_header.find_element(By.XPATH, "./following::ul")
-    return ul.find_elements(By.TAG_NAME, "li")
+        return []
 
   def get_title_and_link(self, job):
     title = job["title"]
