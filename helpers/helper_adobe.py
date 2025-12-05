@@ -103,9 +103,10 @@ class Adobe(Base):
               "What You Bring".lower(),
               "To be successful in this position, you will possess:".lower(),
               "What’s Needed for Success".lower(),
-              "What You’ll Need to Succeed:".lower(),
+              "What You’ll Need to Succeed".lower(),
               "To excel in this position, you should:".lower(),
               "What you’ll bring:".lower(),
+              "Requirements:".lower(),
               ]
     else:
       quals = ["nice to have",

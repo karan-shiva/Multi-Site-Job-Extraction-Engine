@@ -17,3 +17,5 @@ from .helper_nvidia import Nvidia
 from .helper_redhat import RedHat
 from .helper_suse import Suse
 from .helper_visa import Visa
+from .helper_qualcomm import Qualcomm
+from .helper_bytedance import ByteDance

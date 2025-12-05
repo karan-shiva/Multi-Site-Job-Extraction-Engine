@@ -76,9 +76,13 @@ class Broadcom(Base):
     if qual_type == MIN_QUAL:
       quals = ["required qualification",
                "required skills",
+               "Qualifications:".lower(),
+               "Job Qualifications".lower(),
+               "Job Requirements".lower(),
               ]
     else:
       quals = ["preferred skills and experience",
+               "Additional Requirements:".lower(),
                ]
     conditions = " or ".join([
         f"contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{p}')" 
@@ -119,11 +123,16 @@ class Broadcom(Base):
                       "iOS",
                       "Manager",
                       "PhD",
-                      "Front End"
+                      "Front End",
+                      "IC Validation Engineer",
+                      "Mfg Support Ops",
+                      "Mainframe Software, Technical Support Engineer",
+                      "Test Development Engineer",
+                      "R&D Software Engineer",
                       ]
     
     exclude_descriptions = []
-    for i in range(5,11):
+    for i in range(5,20):
       exclude_descriptions.append("{} years".format(i))
       exclude_descriptions.append("{}+ years".format(i))
       exclude_descriptions.append("{} or more years".format(i))

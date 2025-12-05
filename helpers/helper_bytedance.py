@@ -4,51 +4,34 @@ from selenium.webdriver.common.by import By
 from defs import *
 from helpers import Base
 
-class Template(Base):
+class ByteDance(Base):
 
-  company = "template"
+  company = "bytedance"
 
   def get_jobs(self, url):
       self.driver.get(url)
       WebDriverWait(self.driver, 5).until(
-          EC.presence_of_element_located((By.CSS_SELECTOR, "h3.QJPWVe"))
+          EC.presence_of_element_located((By.XPATH, "//a[@href and count(@*) = 1]"))
       )
-      
-      return self.driver.find_elements(By.CSS_SELECTOR, "div[jscontroller='snXUJb']")
 
-  def get_li_elements(self, link, qual_type):
-    if qual_type == MIN_QUAL:
-      quals = ["What you need to bring:".lower(),
-              ]
-    else:
-      quals = ["Preferred Qualifications:".lower(),
-              ]
-    conditions = " or ".join([
-        f"contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{p}')" 
-        for p in quals
-    ])
-    header_xpath = f".//*[self::h2 or self::h3 or self::b or self::div or self::p][{conditions}]"
-    
+      return self.driver.find_elements(By.XPATH, "//a[@href and count(@*) = 1]")
+
+  def get_qualifications(self, link, qual_type):
     self.child_driver.get(link)
     try:
       WebDriverWait(self.child_driver, 5).until(
-        EC.presence_of_element_located((By.XPATH,header_xpath))
+          EC.presence_of_element_located((By.XPATH, "//p[contains(@class, 'bd-title') and contains(normalize-space(.), 'Qualifications')]"))
       )
+      qual_text = self.child_driver.find_element(By.XPATH, "//p[contains(@class, 'bd-title') and contains(normalize-space(.), 'Qualifications')]").find_element(By.XPATH, "./following-sibling::p").text.strip()
+      return [qual_text]
     except Exception as e:
       return []
-
-    els = self.child_driver.find_elements(By.XPATH,header_xpath)
-    qual_header = min(els, key=lambda e: len(e.get_attribute("outerHTML")))
-    ul = qual_header.find_elements(By.XPATH, "./following::ul")
-    if not ul:
-      return []
-    return ul[0].find_elements(By.TAG_NAME, "li")
 
   
   @staticmethod
   def get_title_and_link(job):
-    title = job.find_element(By.CSS_SELECTOR, "h3.QJPWVe").text.strip()
-    link = job.find_element(By.CSS_SELECTOR, "a.WpHeLc").get_attribute("href")
+    title = job.find_element(By.CSS_SELECTOR, "span.font-bold").text.strip()
+    link = job.get_attribute("href")
     return (title, link)
 
   @staticmethod
@@ -80,4 +63,16 @@ class Template(Base):
 
   @staticmethod
   def get_base_url():
-    return ["https://www.google.com/about/careers/applications/jobs/results/?q=%22{}%22&target_level=EARLY&target_level=MID&location=United%20States&sort_by=date&page={}"]
+    return ["https://joinbytedance.com/search?keyword={}&recruitment_id_list=&job_category_id_list=&subject_id_list=&location_code_list=CT_1000001%2CCT_247%2CCT_100764%2CCT_94%2CCT_114%2CCT_223%2CCT_203%2CCT_75%2CCT_1103355%2CCT_157&limit=12&offset={}"]
+  
+  @staticmethod
+  def get_start_pageID():
+    return 0
+  
+  @staticmethod
+  def get_page_increement():
+    return 12
+  
+  @staticmethod
+  def get_quals():
+    return [MIN_QUAL]
