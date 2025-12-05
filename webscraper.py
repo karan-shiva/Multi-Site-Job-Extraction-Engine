@@ -2,17 +2,17 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-from helpers import Apple, Meta, Google, Remitly, Microsoft, Amazon, Oracle, PaloAlto, Paypal, Walmart, Adobe, Broadcom, IBM, Intel, Nvidia, RedHat, Suse, Visa
+from helpers import Apple, Meta, Google, Remitly, Microsoft, Amazon, Oracle, PaloAlto, Paypal, Walmart, Adobe, Broadcom, IBM, Intel, Nvidia, RedHat, Suse, Visa, Qualcomm, ByteDance
 from defs import *
 from urllib.parse import quote
 from datetime import datetime
 import traceback
 
-def print_job_titles_and_links(company: Broadcom, jobs):
+def print_job_titles_and_links(company: Qualcomm, jobs):
   for i, job in enumerate(jobs):
-    title, _ = company.get_title_and_link(job)
-    # print("{}. Title: {}, Date: {}".format(i+1, title, company.get_date(i)))
-    print("{}. Title: {}".format(i+1, title))
+    title, link = company.get_title_and_link(job)
+    # print("{}. Title: {}, Link: {}, Date: {}".format(i+1, title, link, company.get_date(i)))
+    print("{}. Title: {}, Link: {}".format(i+1, title, link))
 
 def check_and_get_quals(company: Broadcom, link, exclude_description, qual_type):
   quals = company.get_qualifications(link, qual_type)
@@ -61,7 +61,7 @@ def output_jobs(company: Broadcom, filter, exclude_titles, exclude_descriptions)
       if not jobs:
         break
 
-      print("Page: {}".format(page))
+      # print("Page: {}".format(page))
       print_job_titles_and_links(company, jobs)
 
       for j, job in enumerate(jobs):
@@ -166,11 +166,13 @@ def run_script(company: Walmart):
 
 
 
+
 if __name__ == "__main__":
   run_script(Adobe())
   run_script(Amazon())
   run_script(Apple())
   run_script(Broadcom())
+  run_script(ByteDance())
   run_script(Google())
   run_script(IBM())
   run_script(Intel())
@@ -178,6 +180,7 @@ if __name__ == "__main__":
   run_script(Microsoft())
   run_script(Nvidia())
   run_script(Paypal())
+  run_script(Qualcomm())
   run_script(RedHat())
   run_script(Suse())
   run_script(Visa())
